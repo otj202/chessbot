@@ -32,6 +32,31 @@ function onDragStart (source, piece, position, orientation) {
   }
 }
 
+//make an ajax request to /move_response/task_id, where task_id=response
+//if len(result)==0: setTimeOut(pollMachine(response)
+//else: document.write(result)
+
+function pollMachine(response){
+    console.log("response is ",response);
+    function recurse(){
+        pollMachine(response);
+    }
+    $.ajax({
+          type:"GET",
+          url:"/move_response/"+response['task_id'],
+          success:function(resp){
+              console.log("resp is ",resp)
+              if(resp['ready']){
+                   document.open();
+                   document.write(resp['newBoard']);
+                   document.close();  
+                   }
+              else{
+                   setTimeout(recurse,1000);
+                   }
+              }
+          });
+}
 function onDrop (source, target) {
   // see if the move is legal
   var move = game.move({
@@ -52,14 +77,12 @@ function onDrop (source, target) {
       data:{
         'fen_string':game.fen()
       },
-      success:function(response){
-          document.open();
-          document.write(response['fen_response']);
-          document.close();
-      }
+      
+      //TODO: rewrite this to poll url:"/move_response/response['fen_response']"
+      // make the success function of the ajax call break if response.length > 0, else keep polling.
+      success:pollMachine
   });
 }
-
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
 function onSnapEnd () {

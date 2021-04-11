@@ -161,6 +161,8 @@ def square2index(square):
 
 #PeSTO evaluation function
 def f(MACHINE_COLOR,board):
+    if board.is_checkmate():
+        return -901 if MACHINE_COLOR == board.turn else 901
     WHITE=0
     BLACK=1
     mg=[0,0]
@@ -299,18 +301,19 @@ def f_prime(MACHINE_COLOR,board):
     board.turn=orig
     return tot
 
+
+
 def old_stateless_find_max_move(MACHINE_COLOR,board,alpha,beta,depth):
     if depth == 0:
-        return None,g(MACHINE_COLOR,board)
-        
-    if board.turn == MACHINE_COLOR:
+        return None,f(MACHINE_COLOR,board)
+    mvs=board.legal_moves
+    if board.turn == MACHINE_COLOR:         
         mx = -901
         mxMove=None
-        bd = None 
-        for mv in board.legal_moves:
-            bd = board.copy()
-            bd.push(mv)
-            succMove,succMx = old_stateless_find_max_move(MACHINE_COLOR,bd,max(mx,alpha),beta,depth-1)
+        for mv in mvs:
+            board.push(mv)
+            succMove,succMx = old_stateless_find_max_move(MACHINE_COLOR,board,max(mx,alpha),beta,depth-1)
+            board.pop()
             if succMx is None:
                 continue
             if succMx >= beta:
@@ -322,11 +325,10 @@ def old_stateless_find_max_move(MACHINE_COLOR,board,alpha,beta,depth):
     else:
         mn = 901
         mnMove = None
-        bd = None 
-        for mv in board.legal_moves:
-            bd = board.copy()
-            bd.push(mv)
-            succMove,succMn = old_stateless_find_max_move(MACHINE_COLOR,bd,alpha,min(mn,beta),depth-1)
+        for mv in mvs:
+            board.push(mv)
+            succMove,succMn = old_stateless_find_max_move(MACHINE_COLOR,board,alpha,min(mn,beta),depth-1)
+            board.pop()
             if succMn is None:
                 continue
             if succMn <= alpha: 
@@ -337,60 +339,136 @@ def old_stateless_find_max_move(MACHINE_COLOR,board,alpha,beta,depth):
         return mnMove,mn
 def stateless_find_max_move(MACHINE_COLOR,board,alpha,beta,depth):
     if depth == 0:
-        return None,f(MACHINE_COLOR,board)
+        coolBd,val=quiesce(MACHINE_COLOR,board,alpha,beta,3)
+        if coolBd is None:
+            return None,None,None
+        return coolBd.copy(),None,val 
     mvs=board.legal_moves
     if board.turn == MACHINE_COLOR:         
-        mx = -901
+        mx = -9001
         mxMove=None
-        bd = None 
-           
+        mxCoolBd=None
         for mv in mvs:
             board.push(mv)
-            succMove,succMx = stateless_find_max_move(MACHINE_COLOR,board,max(mx,alpha),beta,depth-1)
+            coolBd,succMove,succMx = stateless_find_max_move(MACHINE_COLOR,board,max(mx,alpha),beta,depth-1)
             board.pop()
             if succMx is None:
                 continue
             if succMx >= beta:
-                return None,None
+                return None,None,None
             if succMx > mx:
                 mx = succMx
                 mxMove = mv
-        return mxMove,mx
+                mxCoolBd=coolBd
+        
+        return mxCoolBd,mxMove,mx
     else:
-        mn = 901
+        mn = 9001
         mnMove = None
-        bd = None 
+        mnCoolBd=None
         for mv in mvs:
             board.push(mv)
-            succMove,succMn = stateless_find_max_move(MACHINE_COLOR,board,alpha,min(mn,beta),depth-1)
+            coolBd,succMove,succMn = stateless_find_max_move(MACHINE_COLOR,board,alpha,min(mn,beta),depth-1)
             board.pop()
             if succMn is None:
                 continue
             if succMn <= alpha: 
-                return None,None
+                return None,None,None
             if succMn < mn:
+                mnCoolBd=coolBd
                 mn = succMn
                 mnMove = mv
-        return mnMove,mn
-#the whole point of this program is to implement this function 
+        return mnCoolBd,mnMove,mn
+
+def _negamax(MACHINE_COLOR,board,alpha,beta,depth):
+    if depth == 0:
+        val=quiesce(MACHINE_COLOR,board,alpha,beta,10)
+        return val   #    return f(MACHINE_COLOR,board)
+    
+    mvs=board.legal_moves
+    for mv in mvs:
+        board.push(mv)
+        bestVal=-_negamax(MACHINE_COLOR,board,-beta,-alpha,depth-1)
+        board.pop()
+        if bestVal >= beta:
+            return beta
+        if bestVal > alpha:
+            alpha = bestVal
+    return alpha
+
+def negamax(MACHINE_COLOR,board,alpha,beta,depth):
+    mvs=board.legal_moves
+    bestMv=None
+    for mv in mvs:
+        board.push(mv)
+        bestVal=-_negamax(MACHINE_COLOR,board,-beta,-alpha,depth-1)
+        board.pop()
+        if bestVal >= beta:
+            return beta
+        if bestVal > alpha:
+            alpha = bestVal
+            bestMv=mv
+    return bestMv,alpha
+#is the move a check or capture
+def is_loud(board,mv):
+    ret = board.is_capture(mv)
+    board.push(mv)
+    ret = ret and board.is_check()
+    board.pop()
+    return ret 
+#returns a function to pass to filter, to check if a move is loud
+def make_is_loud(board):
+    def _is_loud(mv):
+        return is_loud(board,mv)    
+    return _is_loud
+
+def quiesce(MACHINE_COLOR,board,alpha,beta,depth):
+    local_val=f(board.turn,board) 
+    if depth == 0:
+        return local_val
+    if local_val >= beta: 
+        return beta
+      
+    alpha=max(alpha,local_val) 
+    mvs=filter(make_is_loud(board),list(board.legal_moves))
+    #mvs=filter(board.is_capture,list(board.legal_moves))
+    for mv in mvs:
+        board.push(mv)
+        score=-quiesce(MACHINE_COLOR,board,-beta,-alpha,depth-1)
+        board.pop()
+        if score >= beta:
+                
+            return beta
+        if score>alpha:
+            if score >= beta:
+                return beta    
+            alpha=score 
+    return alpha
+
+#the whole point of this program is to implement this function Zwa
 def old_predict(board):
+    init_tables()
     ret = old_stateless_find_max_move(board.turn,board,-902,902,4)
+    print("with a value of",ret[1])
     return ret[0]
 def predict(board):
     init_tables() 
-    print("inited tables")
-    ret = stateless_find_max_move(board.turn,board,-902,902,4)
+    #ret = stateless_find_max_move(board.turn,board,-9002,9002,4)
+    ret=negamax(board.turn,board,-9002,9002,4)
     print("with a value of ",ret[1])
     return ret[0]
 def machine_game():
     board = chess.Board()
+    board.set_fen("5b1r/4p1p1/p3k3/1p1rPn1p/4Q3/PP6/5PPP/4R1K1 w - - 0 29")    
     while not(board.is_game_over()):
         mv = None
         if board.turn == chess.WHITE:
-             mv = old_predict(board)
+             mv=board.parse_san(input("enter your move:"))
+            # mv = predict(board)
         else:
-           # mv=board.parse_san(input("enter your move:"))
+             #mv=board.parse_san(input("enter your move:"))
              mv = predict(board)
+
         if mv is None:
                     
             print("move is none and boolean isWhite'sTurn is ",board.turn==chess.WHITE)
