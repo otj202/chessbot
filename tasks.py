@@ -5,10 +5,9 @@ celery_app=Celery('tasks',backend='redis://:p1cfadf555e1f6b0a0fcd1f54f8554aebe4c
 
 @celery_app.task
 def generate_machine_move(fen):
+    print("i am in this task")
     board=chess.Board()
     board.set_fen(fen)
-    while(True):
-        pass
     machine_move=ai_model.predict(board)
     board.push(machine_move)
     return board.fen()
