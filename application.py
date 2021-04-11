@@ -31,7 +31,7 @@ def move_response(task_id):
     print("polling this task:",task_id) 
     result=generate_machine_move.AsyncResult(task_id)
     print("result is ",result)
-    print("result.get() is ",result.get())
+#    print("result.get() is ",result.get())
     machine_fen=""
     print("result.ready() is ",result.ready())
     if result.ready():
