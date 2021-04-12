@@ -1,7 +1,7 @@
 import chess
 import random
 
-#---------------------- PeSTO TABLES -----------------------------#
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv PeSTO BOARD EVALUATION FUNCTION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 mg_value = [82, 337, 365, 477, 1025,  0]
 eg_value = [94, 281, 297, 512,  936,  0]
 
@@ -184,7 +184,16 @@ def f(MACHINE_COLOR,board):
     return mul * (mgScore * mgPhase + egScore * egPhase)/24
 
 
-  
+
+
+
+
+
+
+
+
+
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv NO LONGER IN USE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 piece_vals = {chess.PAWN:1,chess.KNIGHT:3,chess.BISHOP:3,chess.ROOK:5,chess.QUEEN:9,chess.KING:200}
 
 #PIECE MATRICES. 
@@ -380,6 +389,20 @@ def stateless_find_max_move(MACHINE_COLOR,board,alpha,beta,depth):
                 mnMove = mv
         return mnCoolBd,mnMove,mn
 
+def old_predict(board):
+    init_tables()
+    ret = old_stateless_find_max_move(board.turn,board,-902,902,4)
+    print("with a value of",ret[1])
+    return ret[0]
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^NO LONGER IN USE^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+
+
+
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv QUIESCENT SEARCH vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 def _negamax(MACHINE_COLOR,board,alpha,beta,depth):
     if depth == 0:
         val=quiesce(MACHINE_COLOR,board,alpha,beta,10)
@@ -444,13 +467,11 @@ def quiesce(MACHINE_COLOR,board,alpha,beta,depth):
                 return beta    
             alpha=score 
     return alpha
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ QUIESCENT SEARCH ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-#the whole point of this program is to implement this function Zwa
-def old_predict(board):
-    init_tables()
-    ret = old_stateless_find_max_move(board.turn,board,-902,902,4)
-    print("with a value of",ret[1])
-    return ret[0]
+
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv API vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
 def predict(board):
     init_tables() 
     #ret = stateless_find_max_move(board.turn,board,-9002,9002,4)
