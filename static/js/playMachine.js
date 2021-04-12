@@ -1,19 +1,4 @@
-<html>
-<head>
-	<link rel = "stylesheet" type="text/css" href="/static/css/chessboard-1.0.0.min.css"/>
-	<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
-        <script src ="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js" ></script>
-	<script src= "/static/js/chessboard-1.0.0.min.js"></script>
-</head>
-<body>
-<h1 style="text-align:center;"> Chess AI</h1>
-<div id = "myBoard" style = "margin:auto;width:400px;"> </div>
-<div style ="text-align:center;margin:auto;">
-    <button id="startBtn" style="margin:auto;"onclick="window.location.reload();">New Game</button>
-<div style="clear:both;"></div>
-<b style="margin-top:50px";> by Owen Jones </b>
-</div>
-<script>
+
 var board = null
 var game = new Chess('{{fen_var}}')
 var $status = $('#status')
@@ -128,6 +113,4 @@ var config = {
 }
 board = Chessboard('myBoard', config)
 
-updateStatus()</script>
-</body>
-</html>
+updateStatus()
