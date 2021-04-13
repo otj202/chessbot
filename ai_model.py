@@ -185,133 +185,7 @@ def f(MACHINE_COLOR,board):
 
 
 
-
-
-
-
-
-
-
-
-#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv NO LONGER IN USE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-piece_vals = {chess.PAWN:1,chess.KNIGHT:3,chess.BISHOP:3,chess.ROOK:5,chess.QUEEN:9,chess.KING:200}
-
-#PIECE MATRICES. 
-#can be improved by using PeSTO, recognizing when it's the early game, when the middle, when the endgame.
-piece_matrices = {
- chess.KING: 
- [[-3,-4,-4,-5,-5,-4,-4,-3],
-  [-3,-4,-4,-5,-5,-4,-4,-3],
-  [-3,-4,-4,-5,-5,-4,-4,-3],
-  [-3,-4,-4,-5,-5,-4,-4,-3],
-  [-2,-3,-3,-4,-4,-3,-3,-2],
-  [-1,-2,-2,-2,-2,-2,-2,-1],
-  [2,2,0,0,0,0,2,2],
-  [2,3,1,0,0,1,3,2]],
- chess.QUEEN:
- [[-2,-1,-1,-0.5,-0.5,-1,-1,-2],
-  [-1,0,0,0,0,0,0,-1],
-  [-1,0,0.5,0.5,0.5,0.5,0,-1],
-  [-0.5,0,0.5,0.5,0.5,0.5,0,-0.5],
-  [0,0,0.5,0.5,0.5,0.5,0,-0.5],
-  [-1,0.5,0.5,0.5,0.5,0.5,0,-1],
-  [-1,0,0.5,0,0,0,0,-1],
-  [-2,-1,-1,-0.5,-0.5,-1,-1,-2]],
- chess.ROOK:
- [[0,0,0,0,0,0,0,0],
-  [0.5,1,1,1,1,1,1,0.5],
-  [-0.5,0,0,0,0,0,0,-0.5],
-  [-0.5,0,0,0,0,0,0,-0.5],
-  [-0.5,0,0,0,0,0,0,-0.5],
-  [-0.5,0,0,0,0,0,0,-0.5],
-  [-0.5,0,0,0,0,0,0,-0.5],
-  [0,0,0,0.5,0.5,0,0,0]],
- chess.BISHOP:
- [[-2,-1,-1,-1,-1,-1,-1,-2],
-  [-1,0,0,0,0,0,0,-1],
-  [-1,0,0.5,1,1,0.5,0,-1],
-  [-1,0.5,0.5,1,1,0.5,0.5,-1],
-  [-1,0,1,1,1,1,0,-1],
-  [-1,1,1,1,1,1,1,-1],
-  [-1,0.5,0,0,0,0,0.5,-1],
-  [-2,-1,-1,-1,-1,-1,-1,-2]],
- chess.KNIGHT:
- [[-5,-4,-3,-3,-3,-3,-4,-5],
-  [-4,-2,0,0,0,0,-2,-4],
-  [-3,0,1,1.5,1.5,1,0,-3],
-  [-3,0.5,1.5,2,2,1.5,0.5,-3],
-  [-3,0,1.5,2,2,1.5,0,-3],
-  [-3,0.5,1,1.5,1.5,1,0.5,-3],
-  [-4,-2,0,0.5,0.5,0,-2,-4],
-  [-5,-4,-3,-3,-3,-3,-4,-5]],
- chess.PAWN:
- [[0,0,0,0,0,0,0,0],
-  [5,5,5,5,5,5,5,5],
-  [1,1,2,3,3,2,1,1],
-  [0.5,0.5,1,2.5,2.5,1,0.5,0.5],
-  [0,0,0,2,2,0,0,0],
-  [0.5,-0.5,-1,0,0,-1,-0.5,0.5],
-  [0.5,1,1,-2,-2,1,1,0.5],
-  [0,0,0,0,0,0,0,0]]
-}
-
-#TODO: implement this
-def _square2index(pc,square):
-    mult = 1 if pc.color == chess.WHITE else -1
-    squareStr = chess.square_name(square)
-    y = ord(squareStr[0]) - ord('a')
-    x = int(squareStr[1]) - 1 if pc.color == chess.BLACK else  -int(squareStr[1])
-    return x,y
-
-def g(MACHINE_COLOR,board):
-    if board.is_checkmate():
-        return -900 if MACHINE_COLOR == board.turn else 900
-    tot = 0
-    #count material, add piece matrix value.
-    for square in chess.SQUARES:
-        pc = board.piece_at(square)
-        if pc is not None:
-            mult = 1 if pc.color == MACHINE_COLOR else -1
-            x,y = _square2index(pc,square)  
-            tot += mult * (piece_vals[pc.piece_type] + 0.05 * piece_matrices[pc.piece_type][x][y])
-   #mobility                 
-    orig=board.turn
-    board.turn=MACHINE_COLOR
-    tot +=  0.05 * board.legal_moves.count()
-    board.turn=chess.WHITE if MACHINE_COLOR == chess.BLACK else chess.BLACK
-    tot -= 0.05 *  board.legal_moves.count()
-    board.turn=orig
-     
-    #move pieces off the back rank    
-    square_mul=1 if MACHINE_COLOR == chess.WHITE else -1
-    for square in chess.SquareSet.ray(chess.A1,chess.H1):
-        if board.piece_at(square) is None:
-            tot += square_mul * .022
-    for square in chess.SquareSet.ray(chess.A8,chess.H8):
-        if board.piece_at(square) is None:  
-            tot -= square_mul * .022
-    return tot
-def f_prime(MACHINE_COLOR,board):
-    if board.is_checkmate():
-        return -900 if MACHINE_COLOR == board.turn else 900
-    tot = 0
-    for square in chess.SQUARES:
-        pc = board.piece_at(square)
-        if pc is not None:
-            mult = 1 if pc.color == MACHINE_COLOR else -1
-            x,y = _square2index(pc,square)  
-            tot += mult * (piece_vals[pc.piece_type] + 0.1 * piece_matrices[pc.piece_type][x][y])
-            
-    orig=board.turn
-    board.turn=MACHINE_COLOR
-    tot +=  0.1 * board.legal_moves.count()
-    board.turn=chess.WHITE if MACHINE_COLOR == chess.BLACK else chess.BLACK
-    tot -= 0.1 *  board.legal_moves.count()
-    board.turn=orig
-    return tot
-
-
-
+#vvvvvvvvvvvvvvvvvvvvvvvvvv OLD MODEL to Be PLAyeD AGAINST vvvvvvvvvvvvvvvvvvvvvvvvvv
 def old_stateless_find_max_move(MACHINE_COLOR,board,alpha,beta,depth):
     if depth == 0:
         return None,f(MACHINE_COLOR,board)
@@ -346,48 +220,6 @@ def old_stateless_find_max_move(MACHINE_COLOR,board,alpha,beta,depth):
                 mn = succMn
                 mnMove = mv
         return mnMove,mn
-def stateless_find_max_move(MACHINE_COLOR,board,alpha,beta,depth):
-    if depth == 0:
-        coolBd,val=quiesce(MACHINE_COLOR,board,alpha,beta,3)
-        if coolBd is None:
-            return None,None,None
-        return coolBd.copy(),None,val 
-    mvs=board.legal_moves
-    if board.turn == MACHINE_COLOR:         
-        mx = -9001
-        mxMove=None
-        mxCoolBd=None
-        for mv in mvs:
-            board.push(mv)
-            coolBd,succMove,succMx = stateless_find_max_move(MACHINE_COLOR,board,max(mx,alpha),beta,depth-1)
-            board.pop()
-            if succMx is None:
-                continue
-            if succMx >= beta:
-                return None,None,None
-            if succMx > mx:
-                mx = succMx
-                mxMove = mv
-                mxCoolBd=coolBd
-        
-        return mxCoolBd,mxMove,mx
-    else:
-        mn = 9001
-        mnMove = None
-        mnCoolBd=None
-        for mv in mvs:
-            board.push(mv)
-            coolBd,succMove,succMn = stateless_find_max_move(MACHINE_COLOR,board,alpha,min(mn,beta),depth-1)
-            board.pop()
-            if succMn is None:
-                continue
-            if succMn <= alpha: 
-                return None,None,None
-            if succMn < mn:
-                mnCoolBd=coolBd
-                mn = succMn
-                mnMove = mv
-        return mnCoolBd,mnMove,mn
 
 def old_predict(board):
     init_tables()
@@ -395,10 +227,6 @@ def old_predict(board):
     print("with a value of",ret[1])
     return ret[0]
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^NO LONGER IN USE^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-
-
 
 
 

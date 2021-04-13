@@ -1,10 +1,4 @@
 
-var board = null
-var game = new Chess('{{fen_var}}')
-var $status = $('#status')
-var $fen = $('#fen')
-var $pgn = $('#pgn')
-
 function onDragStart (source, piece, position, orientation) {
   // do not pick up pieces if the game is over
   if (game.game_over()) return false
@@ -104,13 +98,4 @@ function updateStatus () {
   $pgn.html(game.pgn())
 }
 
-var config = {
-  draggable: true,
-  position: '{{fen_var}}',
-  onDragStart: onDragStart,
-  onDrop: onDrop,
-  onSnapEnd: onSnapEnd
-}
-board = Chessboard('myBoard', config)
 
-updateStatus()
