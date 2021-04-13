@@ -14,7 +14,6 @@ function onDragStart (source, piece, position, orientation) {
 //if the machine came up with a move, play it.
 //else schedule another ajax request
 function pollMachine(response){
-    console.log("response is ",response);
     function recurse(){
         pollMachine(response);
     }
