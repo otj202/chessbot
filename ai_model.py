@@ -281,7 +281,7 @@ def quiesce(MACHINE_COLOR,board,alpha,beta,depth):
         return beta
       
     alpha=max(alpha,local_val) 
-    mvs=filter(make_is_loud(board),list(board.legal_moves))
+    mvs=filter(board.is_capture,list(board.legal_moves))
     #mvs=filter(board.is_capture,list(board.legal_moves))
     for mv in mvs:
         board.push(mv)
