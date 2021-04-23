@@ -30,8 +30,8 @@ def move():
 def move_response(task_id):
     result=generate_machine_move.AsyncResult(task_id)
     machine_fen=""
-    if result.ready():
-        machine_fen=result.get()    
+    #if result.ready():
+    machine_fen=result.get()    
     return jsonify({'newBoard':render_template("index.html",fen_var=machine_fen),'ready':result.ready()})
          
 

@@ -13,7 +13,7 @@ function onDragStart (source, piece, position, orientation) {
 //make an ajax request to /move_response/task_id
 //if the machine came up with a move, play it.
 //else schedule another ajax request
-function pollMachine(response){
+function pollMachine (response) {
     function recurse(){
         pollMachine(response);
     }
@@ -52,9 +52,6 @@ function onDrop (source, target) {
       data:{
         'fen_string':game.fen()
       },
-      
-      //TODO: rewrite this to poll url:"/move_response/response['fen_response']"
-      // make the success function of the ajax call break if response.length > 0, else keep polling.
       success:pollMachine
   });
 }
