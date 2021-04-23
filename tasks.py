@@ -9,8 +9,8 @@ def generate_machine_move(fen):
 	for i in range(1000000):
 		x = "foo"
 	return "bar"
-    board=chess.Board()
-    board.set_fen(fen)
-    machine_move=ai_model.predict(board)
-    board.push(machine_move)
-    return board.fen()
+	#board=chess.Board()
+    #board.set_fen(fen)
+    #machine_move=ai_model.predict(board)
+    #board.push(machine_move)
+    #return board.fen()
