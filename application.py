@@ -2,8 +2,7 @@ from flask import Flask
 from flask import render_template,request,jsonify
 from tasks import celery_app,generate_machine_move
 from celery.result import AsyncResult
-import chess
-import ai_model
+
 
 app = Flask(__name__)
 
@@ -30,8 +29,9 @@ def move():
 def move_response(task_id):
     result=generate_machine_move.AsyncResult(task_id)
     machine_fen=""
-    #if result.ready():
-    machine_fen=result.get()    
+    if result.ready():
+        machine_fen=result.get() 
+    print(:"we have written the result")   
     return jsonify({'newBoard':render_template("index.html",fen_var=machine_fen),'ready':result.ready()})
          
 
