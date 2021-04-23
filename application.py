@@ -31,7 +31,7 @@ def move_response(task_id):
     machine_fen=""
     if result.ready():
         machine_fen=result.get() 
-    print(:"we have written the result")   
+    print("we have written the result")   
     return jsonify({'newBoard':render_template("index.html",fen_var=machine_fen),'ready':result.ready()})
          
 
