@@ -7,7 +7,7 @@ celery_app.conf.update(broker_pool_limit=None,broker_url='redis://:p1cfadf555e1f
 @celery_app.task
 def generate_machine_move(fen):
 	for i in range(10):
-		x = "foo"
+		print(f"generate machine move {i}")
 	return "bar"
 	#board=chess.Board()
     #board.set_fen(fen)
