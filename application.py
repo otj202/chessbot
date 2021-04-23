@@ -20,6 +20,7 @@ def move():
         return render_template("index.html",fen_var=start_fen)
     
     if request.method == "POST":
+        print("we are at least in the post request")
         jsdata = request.form['fen_string']
         result = generate_machine_move.delay(jsdata)
         return jsonify({'task_id':result.id}) 
