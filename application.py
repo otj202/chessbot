@@ -23,6 +23,7 @@ def move():
         print("we are at least in the post request")
         jsdata = request.form['fen_string']
         result = generate_machine_move.delay(jsdata)
+        print("we delayed the task")
         return jsonify({'task_id':result.id}) 
 
 #get the machine's move from the task result, if the task has finished executing.
