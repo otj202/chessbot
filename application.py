@@ -27,6 +27,7 @@ def move():
 #get the machine's move from the task result, if the task has finished executing.
 @app.route("/move_response/<task_id>")
 def move_response(task_id):
+    print("we are polling")
     result=generate_machine_move.AsyncResult(task_id)
     machine_fen=""
     if result.ready():
