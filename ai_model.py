@@ -249,7 +249,7 @@ def old_predict(board):
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv QUIESCENT SEARCH (checks checks too)vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 def _negamax(MACHINE_COLOR,board,alpha,beta,depth):
     if depth == 0:
-        val=quiesce(MACHINE_COLOR,board,alpha,beta,10)
+        val=quiesce(MACHINE_COLOR,board,alpha,beta,7)
         return val   #    return f(MACHINE_COLOR,board)
     
     mvs=board.legal_moves
@@ -297,8 +297,8 @@ def quiesce(MACHINE_COLOR,board,alpha,beta,depth):
         return beta
       
     alpha=max(alpha,local_val) 
-    mvs=filter(make_is_loud(board),list(board.legal_moves))
-    #mvs=filter(board.is_capture,list(board.legal_moves))
+    #mvs=filter(make_is_loud(board),list(board.legal_moves))
+    mvs=filter(board.is_capture,list(board.legal_moves))
     for mv in mvs:
         board.push(mv)
         score=-quiesce(MACHINE_COLOR,board,-beta,-alpha,depth-1)
