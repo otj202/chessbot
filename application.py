@@ -22,6 +22,7 @@ def move():
     
     if request.method == "POST":
         jsdata = request.form['fen_string']
+        result = generate_machine_move.delay(jsdata)
         return jsonify({'task_id':result.id}) 
 
 #get the machine's move from the task result, if the task has finished executing.
