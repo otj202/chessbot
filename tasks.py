@@ -3,9 +3,9 @@ import ai_model
 import chess
 import os
 import ssl
-REDIS_URL=os.getenv("REDIS_URL")
+REDIS_URL=os.getenv("REDIS_URL") + "?ssl_cert_reqs=none"
 celery_app=Celery('tasks',backend=REDIS_URL,broker=REDIS_URL)
-celery_app.conf.update(broker_pool_limit=None,broker_url=REDIS_URL,result_backend=REDIS_URL,ssl_cert_reqs=None)
+#celery_app.conf.update(broker_pool_limit=None,broker_url=REDIS_URL,result_backend=REDIS_URL)
 @celery_app.task
 def generate_machine_move(fen):
     board=chess.Board()
