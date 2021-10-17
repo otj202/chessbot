@@ -3,7 +3,8 @@ import ai_model
 import chess
 import os
 import ssl
-REDIS_URL=os.getenv("REDIS_URL") + "\?ssl_cert_reqs=none"
+REDIS_URL=os.getenv("REDIS_URL") + "?ssl_cert_reqs=none"
+print("redis url is ",REDIS_URL)
 celery_app=Celery('tasks',backend=REDIS_URL,broker=REDIS_URL)
 #celery_app.conf.update(broker_pool_limit=None,broker_url=REDIS_URL,result_backend=REDIS_URL)
 @celery_app.task
